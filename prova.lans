@@ -6,4 +6,6 @@ programa test
     escriureln(3,8,7);
     escriureln(3.5,7,8);
     escriureln(3.5);
+    escriureln('c','F','?');
+    escriureln("hola");
 fprograma

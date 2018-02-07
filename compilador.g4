@@ -561,7 +561,7 @@ literal_tipus_basic returns [char tipus, Long adreca]
       | car=TK_CAR   
         { 
             $tipus = lib_.CAR_; 
-            $adreca = bc_.addConstant("S",$car.text.replaceAll("'",""));
+            $adreca = bc_.addConstant("C",$car.text.replaceAll("'",""));
         }
         ) 
     ;
