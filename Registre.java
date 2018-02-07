@@ -12,19 +12,19 @@ public class Registre  {
 public Registre() {
 	lexema_="";
 	tipus_='I';
-	adreca_=0L;
+	adreca_=-1L;
 	}
 
 
 public Registre(String l) {
 	lexema_=l;
 	tipus_='I';
-	adreca_=0L;
+	adreca_=-1L;
 	}
 public Registre(String l, char t) {
 	lexema_=l;
 	tipus_=t;
-	adreca_=0L;
+	adreca_=-1L;
 	}
 public Registre(String l, char t, Long a) {
 	lexema_=l;
@@ -34,7 +34,7 @@ public Registre(String l, char t, Long a) {
 public Registre(String l, char t, char tid) {
 	lexema_=l;
 	tipus_=t;
-	adreca_=0L;
+	adreca_=-1L;
     tipID_=tid;
 	}
 public Registre(String l, char t, char tid, Long a) {
