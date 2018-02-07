@@ -372,12 +372,10 @@ escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
       (exp=expressio 
        {$trad = lib_.escriure($exp.tipus,$exp.adreca,$saltlinia, bc_);}
       | str=TK_STRING
-        {System.out.println("String");
-         $trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.substring(1,$str.text.length()-1)),$saltlinia,bc_);}      
+        {$trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.substring(1,$str.text.length()-1)),$saltlinia,bc_);}      
       ) (TK_OP_COMA 
       (exp2=expressio
-       {$trad.addAll(lib_.escriure($exp2.tipus,$exp2.adreca,$saltlinia, bc_));}
-      
+       {$trad.addAll(lib_.escriure($exp.tipus,$exp2.adreca,$saltlinia, bc_));}
       | str2=TK_STRING
         {$trad.addAll(lib_.escriure(lib_.STR_,bc_.addConstant("S",$str2.text.substring(1,$str2.text.length()-1)),$saltlinia,bc_));}
       ))* TK_OP_RPAREN TK_OP_SEMICOL ;
@@ -552,8 +550,7 @@ literal_tipus_basic returns [char tipus, Long adreca]
       | car=TK_CAR   
         { 
             $tipus = lib_.CAR_; 
-            System.out.println($car.text);
-            $adreca = bc_.addConstant("C",$car.text.replaceAll("'",""));
+            $adreca = bc_.addConstant("S",$car.text.replaceAll("'",""));
         }
         ) 
     ;
@@ -701,6 +698,6 @@ TK_CAR  : '\'' ('\u0000' .. '\u007F') '\'' ; // Del caracter NULL a DEL en ASCII
 
 TK_BOOL : 'cert' | 'fals' ;
 
-TK_STRING : '"' ('\u0000' .. '\u007F')* '"' ; 
+TK_STRING : '"' (~('\r' | '\n' | '"') | '\"')* '"' ; 
 
 TK_IDENT : LLETRA (LLETRA | DIGIT | '0' | '_' )* ;

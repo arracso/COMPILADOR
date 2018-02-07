@@ -32,7 +32,6 @@ public class Lib  {
     public Vector<Long> escriure(char tipus, Long adreca, Boolean saltLinia, Bytecode bc_){
         Vector<Long> trad = new Vector<Long>(12);
         if(tipus == ENTER_){
-            
             trad.add(bc_.LDC_W);
             trad.add(bc_.nByte(adreca,2));
             trad.add(bc_.nByte(adreca,1));
@@ -64,7 +63,7 @@ public class Lib  {
             trad.add(bc_.nByte(bc_.mPutBoolean,2));
             trad.add(bc_.nByte(bc_.mPutBoolean,1));
         }
-        else if(tipus == STR_){
+        else if(tipus == STR_){ // No ho fa be
             trad.add(bc_.LDC_W);
             trad.add(bc_.nByte(adreca,2));
             trad.add(bc_.nByte(adreca,1));
