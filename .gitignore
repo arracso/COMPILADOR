@@ -1,5 +1,7 @@
-.class
-.tokens
+*.class
+*.tokens
+*.jar
+*.lnk
 compiladorBaseListener.java
 compiladorParser.java
 compiladorListener.java
