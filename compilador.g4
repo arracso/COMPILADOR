@@ -740,6 +740,6 @@ TK_CAR  : '\'' ('\u0000' .. '\u007F') '\'' ; // Del caracter NULL a DEL en ASCII
 
 TK_BOOL : 'Cert' | 'Fals' ;
 
-TK_STRING : '"' (~('\r' | '\n' | '"') | '\"')* '"' ; 
+TK_STRING : '"' ('\u0000' .. '\u007F')* '"' ;
 
 TK_IDENT : LLETRA (LLETRA | DIGIT | '0' | '_' )* ;
