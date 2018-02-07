@@ -2,6 +2,7 @@
 *.tokens
 *.jar
 *.lnk
+*.lans
 compiladorBaseListener.java
 compiladorParser.java
 compiladorListener.java
