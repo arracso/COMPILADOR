@@ -7,7 +7,7 @@ public class Registre  {
 	char tipus_;
 	Long adreca_;
     char tipID_; // per saber si el lexema_ es un constant 'c', variable 'v', funcio 'f', accio 'a'
-    DefTipus df_;
+    Lib lib_;
 
 public Registre() {
 	lexema_="";
@@ -57,7 +57,7 @@ public char getTipID() {
 	return (tipID_);
 	}
 public boolean modificable() {
-	return tipID_==df_.VAR_;
+	return tipID_==lib_.VAR_;
 	}
 
 public void putLexema(String l) {

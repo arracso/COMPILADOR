@@ -13,7 +13,7 @@
 }
 
 @parser::members{
-         DefTipus defTip_ = new DefTipus();
+         Lib lib_ = new Lib();
          SymTable<Registre> TS = new SymTable<Registre>(1000);   
          boolean error = false; 
          
@@ -27,32 +27,7 @@
          public void notifyErrorListeners(Token offendingToken, String msg, RecognitionException e) {            
               super.notifyErrorListeners(offendingToken,msg,e);            
               error=true;              
-         }
-         
-         public Vector<Long> escriure_ (Long adreca, Boolean saltLinia){
-            Vector<Long> trad = new Vector<Long>(12);
-            if(tok.tipus == defTip_.ENTER_)
-            {
-                // Imprimim un missatge per pantall    a
-                trad.add(bc_.LDC_W);
-                trad.add(bc_.nByte(adreca,2));
-                trad.add(bc_.nByte(adreca,1));
-                trad.add(bc_.INVOKESTATIC);
-                trad.add(bc_.nByte(bc_.mPutInt,2));
-                trad.add(bc_.nByte(bc_.mPutInt,1));
-            }
-            if(saltlinia)
-            {
-                Long barN=bc_.addConstant("C","\n");
-                trad.add(bc_.LDC_W);
-                trad.add(bc_.nByte(barN,2));
-                trad.add(bc_.nByte(barN,1));
-                trad.add(bc_.INVOKESTATIC);
-                trad.add(bc_.nByte(bc_.mPutChar,2));
-                trad.add(bc_.nByte(bc_.mPutChar,1));
-            }
-            return trad
-         }                              
+         }                             
 }
 
 ///////////////////////////////////////
@@ -113,7 +88,7 @@ decl_constants
                                 System.exit(-1);
                             }else{
 				Long addr = bc_.addConstName($id1.text,String.valueOf($t.tipus),$l1.text);
-                                TS.inserir($id1.text,new Registre($id1.text,$t.tipus, defTip_.CONST_,addr));
+                                TS.inserir($id1.text,new Registre($id1.text,$t.tipus, lib_.CONST_,addr));
                             }
                         }
                         (TK_OP_COMA id2=TK_IDENT TK_OP_POINTS l2=literal_tipus_basic
@@ -128,7 +103,7 @@ decl_constants
                                 System.exit(-1);
                             }else{
 				Long addr = bc_.addConstName($id2.text,String.valueOf($t.tipus),$l2.text);
-                                TS.inserir($id2.text,new Registre($id2.text,$t.tipus, defTip_.CONST_, addr));
+                                TS.inserir($id2.text,new Registre($id2.text,$t.tipus, lib_.CONST_, addr));
                             }
                         }
                         )* TK_OP_SEMICOL
@@ -158,18 +133,18 @@ tipus_general returns [char tipus]
 tipus_basic returns [char tipus]
     //@init{ System.out.println("Entrem a la regla 'tipus_basic'");}
     //@after{System.out.println("Sortim de la regla 'tipus_basic'");}
-    :   ( TK_PC_ENTER   { $tipus = defTip_.ENTER_; }
-        | TK_PC_CAR     { $tipus = defTip_.CAR_; }
-        | TK_PC_REAL    { $tipus = defTip_.REAL_; }
-        | TK_PC_BOOL    { $tipus = defTip_.BOOL_; }
+    :   ( TK_PC_ENTER   { $tipus = lib_.ENTER_; }
+        | TK_PC_CAR     { $tipus = lib_.CAR_; }
+        | TK_PC_REAL    { $tipus = lib_.REAL_; }
+        | TK_PC_BOOL    { $tipus = lib_.BOOL_; }
         )
     ;
 
 literal_tipus_basic returns [char tipus]    
-    :   ( TK_ENTER  { $tipus = defTip_.ENTER_; }
-        | TK_CAR    { $tipus = defTip_.CAR_; }
-        | TK_REAL   { $tipus = defTip_.REAL_; }
-        | TK_BOOL   { $tipus = defTip_.BOOL_; }
+    :   ( TK_ENTER  { $tipus = lib_.ENTER_; }
+        | TK_CAR    { $tipus = lib_.CAR_; }
+        | TK_REAL   { $tipus = lib_.REAL_; }
+        | TK_BOOL   { $tipus = lib_.BOOL_; }
         ) 
     ;
 
@@ -215,7 +190,7 @@ decl_variables locals [ArrayList<String> idList]
             })* 
             TK_OP_POINTS tip=tipus_general TK_OP_SEMICOL {
                 for(int i=0;i<$idList.size();i++){
-                    TS.inserir($idList.get(i),new Registre($idList.get(i),$tip.tipus, defTip_.VAR_));
+                    TS.inserir($idList.get(i),new Registre($idList.get(i),$tip.tipus, lib_.VAR_));
                 }
             })+
         TK_PC_FVAR
@@ -333,7 +308,7 @@ condicional  returns [Vector<Long> trad]
     //@after{System.out.println("- 'condicional'");}
     :   c=TK_PC_IF e=expressio TK_PC_THEN
                 {
-                    if($e.tipus != defTip_.BOOL_){
+                    if($e.tipus != lib_.BOOL_){
                         error=true;
                         System.out.println("Error condicional a la linia " + $c.line+ "\nL'EXPRESSIO NO ES DE TIPUS BOLEA.");
                         System.exit(-1);
@@ -354,7 +329,7 @@ bucle   returns [Vector<Long> trad]
             sentencia*
         c=TK_PC_EXITIF e=expressio TK_OP_SEMICOL
         {
-            if($e.tipus != defTip_.BOOL_){
+            if($e.tipus != lib_.BOOL_){
                 error=true;
                 System.out.println("Error bucle mentre a la linia " + $c.line+ "\nL'EXPRESSIO NO ES DE TIPUS BOLEA.");
                 System.exit(-1);
@@ -386,7 +361,7 @@ per returns [Vector<Long> trad] locals [Registre regIDEN]
                 "IDEN: '"+$id.text+"' no modificable.");
                 System.exit(-1);
             }
-            else if($e1.tipus != defTip_.ENTER_ || $e1.tipus != $e2.tipus || $regIDEN.getTipus() != $e1.tipus){
+            else if($e1.tipus != lib_.ENTER_ || $e1.tipus != $e2.tipus || $regIDEN.getTipus() != $e1.tipus){
                 error=true;
                 System.out.println("Error de TIPUS en el PER per a la linia " + $f.line+"\n");
                 System.exit(-1);
@@ -402,8 +377,13 @@ escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
       System.out.println("+ 'escriure'");}
 @after{System.out.println("- 'escriure'");}
     : (TK_PC_WRITE | TK_PC_WRITELINE {$saltlinia = true;}) TK_OP_LPAREN 
-      (exp=expressio {$trad = escriure_($exp.adreca,$saltlinia);}
-      | TK_STRING) (TK_OP_COMA (expressio | TK_STRING))* TK_OP_RPAREN TK_OP_SEMICOL ;
+      (exp=expressio 
+       {$trad = lib_.escriure_($exp.tipus,$exp.adreca,$saltlinia, bc_);}
+      | str=TK_STRING) (TK_OP_COMA 
+      (exp2=expressio
+       {$trad = lib_.escriure_($exp2.tipus,$exp2.adreca,$saltlinia, bc_);}
+      
+      | TK_STRING))* TK_OP_RPAREN TK_OP_SEMICOL ;
 
 llegir returns [Vector<Long> trad]
     @init{ $trad = new Vector<Long>(0);
@@ -435,7 +415,7 @@ expressio returns [char tipus, Long adreca]
         $adreca = $t1.adreca;
       }
         ( op=(TK_OP_AND | TK_OP_OR) t2=exprRelacionals {
-            if($t1.tipus != defTip_.BOOL_ || $t2.tipus != defTip_.BOOL_){
+            if($t1.tipus != lib_.BOOL_ || $t2.tipus != lib_.BOOL_){
                 error=true;
                 System.out.println("Error de booleans detectat a la linia " + $op.line);
                 System.exit(-1);
@@ -452,10 +432,10 @@ exprRelacionals returns [char tipus, Long adreca]
         $adreca = $t1.adreca;
       }
         ( op=(TK_OP_LESSOREQUAL | TK_OP_MOREOREQUAL | TK_OP_EQUAL | TK_OP_NOTEQUAL | TK_OP_LESS | TK_OP_MORE) t2=exprArit {
-            if(($t1.tipus == defTip_.ENTER_ || $t1.tipus == defTip_.REAL_) && ($t2.tipus == defTip_.ENTER_ || $t2.tipus == defTip_.REAL_)){
-                $tipus = defTip_.BOOL_;
+            if(($t1.tipus == lib_.ENTER_ || $t1.tipus == lib_.REAL_) && ($t2.tipus == lib_.ENTER_ || $t2.tipus == lib_.REAL_)){
+                $tipus = lib_.BOOL_;
             }else if($t1.tipus == $t2.tipus && ($op.text == "==" || $op.text == "/=")){
-                $tipus = defTip_.BOOL_;
+                $tipus = lib_.BOOL_;
             }else{
                 error=true;
                 System.out.println("Error de relacionals detectat a la linia " + $op.line+"\n"+
@@ -474,14 +454,14 @@ exprArit returns [char tipus, Long adreca]
         $adreca = $t1.adreca;
       }
         ( op=(TK_OP_PLUS | TK_OP_MINUS) t2=exprArit2 {
-            if(($t1.tipus != defTip_.ENTER_ && $t1.tipus != defTip_.REAL_) || ($t2.tipus != defTip_.ENTER_ && $t2.tipus != defTip_.REAL_)){ // Si no son ni enters ni reals
+            if(($t1.tipus != lib_.ENTER_ && $t1.tipus != lib_.REAL_) || ($t2.tipus != lib_.ENTER_ && $t2.tipus != lib_.REAL_)){ // Si no son ni enters ni reals
                 error=true;
                 System.out.println("Error de aritmetic detectat a la linia " + $op.line+
                 "\n"+$t1.text+": "+$t1.tipus+
                 "\n"+$t2.text+": "+$t2.tipus);
                 System.exit(-1);
-            }else if ($t2.tipus == defTip_.REAL_){
-                $tipus = defTip_.REAL_;
+            }else if ($t2.tipus == lib_.REAL_){
+                $tipus = lib_.REAL_;
             }
         })*
     ;
@@ -495,12 +475,12 @@ exprArit2 returns [char tipus, Long adreca]
         $adreca = $t1.adreca;
       }
         ( op=(TK_OP_STAR | TK_OP_BAR | TK_OP_CBAR | TK_OP_PERCENT) t2=expUnari {
-            if(($t1.tipus != defTip_.ENTER_ && $t1.tipus != defTip_.REAL_) || ($t2.tipus != defTip_.ENTER_ && $t2.tipus != defTip_.REAL_)){ // Si no son ni enters ni reals
+            if(($t1.tipus != lib_.ENTER_ && $t1.tipus != lib_.REAL_) || ($t2.tipus != lib_.ENTER_ && $t2.tipus != lib_.REAL_)){ // Si no son ni enters ni reals
                 error=true;
                 System.out.println("Error de aritmetic_2 detectat a la linia " + $op.line);
                 System.exit(-1);
-            }else if ($t2.tipus == defTip_.REAL_){
-                $tipus = defTip_.REAL_;
+            }else if ($t2.tipus == lib_.REAL_){
+                $tipus = lib_.REAL_;
             }
         })*
     ;
@@ -509,7 +489,7 @@ exprArit2 returns [char tipus, Long adreca]
 expUnari returns [char tipus, Long adreca]
 @init{$adreca = -1L;}
     : op=(TK_OP_HASH | TK_OP_TILDE)? t=terme {
-        if($op != null && $t.tipus != defTip_.ENTER_ && $t.tipus != defTip_.REAL_){ // Si no es ni enter ni real
+        if($op != null && $t.tipus != lib_.ENTER_ && $t.tipus != lib_.REAL_){ // Si no es ni enter ni real
             error = true;
             System.out.println("Error de unaris detectat a la linia " + $op.line);
             System.exit(-1);
@@ -542,28 +522,28 @@ terme returns [char tipus, Long adreca]
       | TK_OP_LPAREN t=expressio { $tipus = $t.tipus; } TK_OP_RPAREN
       | ent=TK_ENTER 
         { 
-            $tipus = defTip_.ENTER_;
+            $tipus = lib_.ENTER_;
             $adreca = bc_.addConstant("I",$ent.text);
         }
       | rea=TK_REAL  
         { 
-            $tipus = defTip_.REAL_; 
+            $tipus = lib_.REAL_; 
             $adreca = bc_.addConstant("F",$rea.text);
         }
       | boo=TK_BOOL  
         { 
-            $tipus = defTip_.BOOL_; 
+            $tipus = lib_.BOOL_; 
             $adreca = bc_.addConstant("Z",$boo.text);
         }
       | car=TK_CAR   
         { 
-            $tipus = defTip_.CAR_; 
+            $tipus = lib_.CAR_; 
             $adreca = bc_.addConstant("C",$car.text);
         }
       | op=TK_OP_NOT t=expressio
             {
                 $tipus = $t.tipus;
-                if($t.tipus != defTip_.BOOL_){ // Si no és boolea
+                if($t.tipus != lib_.BOOL_){ // Si no és boolea
                     error = true;
                     System.out.println("Error de terme detectat a la linia " + $op.line);
                     System.exit(-1);
