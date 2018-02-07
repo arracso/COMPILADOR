@@ -1,1 +1,7 @@
 .class
+.tokens
+compiladorBaseListener.java
+compiladorParser.java
+compiladorListener.java
+compiladorLexer.java
+antlr-runtime-4.7.jar
