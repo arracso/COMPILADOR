@@ -372,13 +372,14 @@ escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
       (exp=expressio 
        {$trad = lib_.escriure($exp.tipus,$exp.adreca,$saltlinia, bc_);}
       | str=TK_STRING
-        {$trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.split("\"")[1]),$saltlinia,bc_);}      
+        {System.out.println("String");
+         $trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.substring(1,$str.text.length()-1)),$saltlinia,bc_);}      
       ) (TK_OP_COMA 
       (exp2=expressio
        {$trad.addAll(lib_.escriure($exp2.tipus,$exp2.adreca,$saltlinia, bc_));}
       
       | str2=TK_STRING
-        {$trad.addAll(lib_.escriure(lib_.STR_,bc_.addConstant("S",$str2.text.split("\"")[1]),$saltlinia,bc_));}
+        {$trad.addAll(lib_.escriure(lib_.STR_,bc_.addConstant("S",$str2.text.substring(1,$str2.text.length()-1)),$saltlinia,bc_));}
       ))* TK_OP_RPAREN TK_OP_SEMICOL ;
 
 llegir returns [Vector<Long> trad]
@@ -551,7 +552,8 @@ literal_tipus_basic returns [char tipus, Long adreca]
       | car=TK_CAR   
         { 
             $tipus = lib_.CAR_; 
-            $adreca = bc_.addConstant("C",$car.text);
+            System.out.println($car.text);
+            $adreca = bc_.addConstant("C",$car.text.replaceAll("'",""));
         }
         ) 
     ;
