@@ -1,11 +1,23 @@
 // comenta ri
 
 programa test
-	escriureln("hola");
-    escriureln("hola"a "hola");
-    escriureln(3,8,7);
-    escriureln(3.5,7,8);
-    escriureln(3.5);
-    escriureln('c','F','?');
-    escriureln("hola");
+    const
+        enter int: 2, int2: 4;
+        real float: 4.233;
+        boolea bool: Cert;
+        car char: 'G';
+    fconst
+    var
+        var_int, var_int2: enter;
+        var_char, var_char2: car;
+        var_bool: boolea;
+        var_float: real;
+    fvar
+    
+    var_int := int2;
+    var_int2 := int;
+    escriureln(var_int);
+    escriureln(var_int2);
+    llegir(var_int2);
+    //escriureln(var_int2);
 fprograma
