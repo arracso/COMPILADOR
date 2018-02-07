@@ -1,6 +1,9 @@
 // comenta ri
 
 programa test
-	escriure("hola");
-    escriure("hola");
+	escriureln("hola");
+    escriureln("hola"a "hola");
+    escriureln(3,8,7);
+    escriureln(3.5,7,8);
+    escriureln(3.5);
 fprograma

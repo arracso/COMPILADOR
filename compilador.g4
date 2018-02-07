@@ -367,17 +367,28 @@ per returns [Vector<Long> trad] locals [Registre regIDEN]
 escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
 @init{$saltlinia = false;
       System.out.println("+ 'escriure'");}
-@after{System.out.println("- 'escriure'");}
+@after{
+        if($saltlinia){
+            Long barN=bc_.addConstant("C","\n");
+            $trad.add(bc_.LDC_W);
+            $trad.add(bc_.nByte(barN,2));
+            $trad.add(bc_.nByte(barN,1));
+            $trad.add(bc_.INVOKESTATIC);
+            $trad.add(bc_.nByte(bc_.mPutChar,2));
+            $trad.add(bc_.nByte(bc_.mPutChar,1));
+        }
+       
+       System.out.println("- 'escriure'");}
     : (TK_PC_WRITE | TK_PC_WRITELINE {$saltlinia = true;}) TK_OP_LPAREN 
       (exp=expressio 
-       {$trad = lib_.escriure($exp.tipus,$exp.adreca,$saltlinia, bc_);}
+       { $trad = lib_.escriure($exp.tipus,$exp.adreca, bc_);}
       | str=TK_STRING
-        {$trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.substring(1,$str.text.length()-1)),$saltlinia,bc_);}      
+        {$trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.substring(1,$str.text.length()-1)),bc_);}      
       ) (TK_OP_COMA 
       (exp2=expressio
-       {$trad.addAll(lib_.escriure($exp.tipus,$exp2.adreca,$saltlinia, bc_));}
+       {$trad.addAll(lib_.escriure($exp2.tipus,$exp2.adreca, bc_));}
       | str2=TK_STRING
-        {$trad.addAll(lib_.escriure(lib_.STR_,bc_.addConstant("S",$str2.text.substring(1,$str2.text.length()-1)),$saltlinia,bc_));}
+        {$trad.addAll(lib_.escriure(lib_.STR_,bc_.addConstant("S",$str2.text.substring(1,$str2.text.length()-1)),bc_));}
       ))* TK_OP_RPAREN TK_OP_SEMICOL ;
 
 llegir returns [Vector<Long> trad]
