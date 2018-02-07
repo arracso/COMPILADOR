@@ -555,10 +555,10 @@ terme returns [char tipus, Long adreca]
             $tipus = defTip_.BOOL_; 
             $adreca = bc_.addConstant("Z",$boo.text);
         }
-      | ca=TK_CAR   
+      | car=TK_CAR   
         { 
             $tipus = defTip_.CAR_; 
-            $adreca = bc_.addConstant("C",$ca.text);
+            $adreca = bc_.addConstant("C",$car.text);
         }
       | op=TK_OP_NOT t=expressio
             {
