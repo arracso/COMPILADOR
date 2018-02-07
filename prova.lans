@@ -2,4 +2,7 @@
 
 programa test
 	escriure(2);
+    escriure(5);
+	escriureln(2);
+    escriureln(5);
 fprograma
