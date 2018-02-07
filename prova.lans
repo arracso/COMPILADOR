@@ -1,10 +1,5 @@
 // comenta ri
 
 programa test
-	escriure(2,4);
-    escriure('a');
-	escriureln(2,7.554,8);
-    escriureln(5);
-    escriure("ssdfsd true fasle 'c' sdfsd");
     escriure("hola");
 fprograma
