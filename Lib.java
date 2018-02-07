@@ -29,10 +29,9 @@ public class Lib  {
     }
     
     // Imprimim un missatge per pantalla
-    public Vector<Long> escriure(char tipus, Long adreca, Boolean saltLinia, Bytecode bc_){
+    public Vector<Long> escriure(char tipus, Long adreca, Bytecode bc_){
         Vector<Long> trad = new Vector<Long>(12);
         if(tipus == ENTER_){
-            
             trad.add(bc_.LDC_W);
             trad.add(bc_.nByte(adreca,2));
             trad.add(bc_.nByte(adreca,1));
@@ -64,22 +63,13 @@ public class Lib  {
             trad.add(bc_.nByte(bc_.mPutBoolean,2));
             trad.add(bc_.nByte(bc_.mPutBoolean,1));
         }
-        else if(tipus == STR_){
+        else if(tipus == STR_){ // No ho fa del tot be
             trad.add(bc_.LDC_W);
             trad.add(bc_.nByte(adreca,2));
             trad.add(bc_.nByte(adreca,1));
             trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutString,2));
             trad.add(bc_.nByte(bc_.mPutString,1));
-        }
-        if(saltLinia){
-            Long barN=bc_.addConstant("C","\n");
-            trad.add(bc_.LDC_W);
-            trad.add(bc_.nByte(barN,2));
-            trad.add(bc_.nByte(barN,1));
-            trad.add(bc_.INVOKESTATIC);
-            trad.add(bc_.nByte(bc_.mPutChar,2));
-            trad.add(bc_.nByte(bc_.mPutChar,1));
         }
         return trad;
     } 
