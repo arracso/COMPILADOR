@@ -140,14 +140,6 @@ tipus_basic returns [char tipus]
         )
     ;
 
-literal_tipus_basic returns [char tipus]    
-    :   ( TK_ENTER  { $tipus = lib_.ENTER_; }
-        | TK_CAR    { $tipus = lib_.CAR_; }
-        | TK_REAL   { $tipus = lib_.REAL_; }
-        | TK_BOOL   { $tipus = lib_.BOOL_; }
-        ) 
-    ;
-
 defi_tipus :    TK_PC_TIPUS
                     (TK_IDENT TK_OP_POINTS constr_tipus TK_OP_SEMICOL)+
                 TK_PC_FTIPUS
@@ -378,12 +370,16 @@ escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
 @after{System.out.println("- 'escriure'");}
     : (TK_PC_WRITE | TK_PC_WRITELINE {$saltlinia = true;}) TK_OP_LPAREN 
       (exp=expressio 
-       {$trad = lib_.escriure_($exp.tipus,$exp.adreca,$saltlinia, bc_);}
-      | str=TK_STRING) (TK_OP_COMA 
+       {$trad = lib_.escriure($exp.tipus,$exp.adreca,$saltlinia, bc_);}
+      | str=TK_STRING
+        {$trad = lib_.escriure(lib_.STR_,bc_.addConstant("S",$str.text.split("\"")[1]),$saltlinia,bc_);}      
+      ) (TK_OP_COMA 
       (exp2=expressio
-       {$trad = lib_.escriure_($exp2.tipus,$exp2.adreca,$saltlinia, bc_);}
+       {$trad.addAll(lib_.escriure($exp2.tipus,$exp2.adreca,$saltlinia, bc_));}
       
-      | TK_STRING))* TK_OP_RPAREN TK_OP_SEMICOL ;
+      | str2=TK_STRING
+        {$trad.addAll(lib_.escriure(lib_.STR_,bc_.addConstant("S",$str2.text.split("\"")[1]),$saltlinia,bc_));}
+      ))* TK_OP_RPAREN TK_OP_SEMICOL ;
 
 llegir returns [Vector<Long> trad]
     @init{ $trad = new Vector<Long>(0);
@@ -520,7 +516,24 @@ terme returns [char tipus, Long adreca]
           | (TK_OP_LKEY expressio TK_OP_RKEY) 
           | (TK_OP_LPAREN param_reals? TK_OP_RPAREN))?
       | TK_OP_LPAREN t=expressio { $tipus = $t.tipus; } TK_OP_RPAREN
-      | ent=TK_ENTER 
+      | lit=literal_tipus_basic 
+        { 
+            $tipus = $lit.tipus;
+            $adreca = $lit.adreca;
+        }
+      | op=TK_OP_NOT t=expressio
+            {
+                $tipus = $t.tipus;
+                if($t.tipus != lib_.BOOL_){ // Si no és boolea
+                    error = true;
+                    System.out.println("Error de terme detectat a la linia " + $op.line);
+                    System.exit(-1);
+                }
+            }
+      ;
+
+literal_tipus_basic returns [char tipus, Long adreca]  
+    :   (ent=TK_ENTER 
         { 
             $tipus = lib_.ENTER_;
             $adreca = bc_.addConstant("I",$ent.text);
@@ -540,17 +553,8 @@ terme returns [char tipus, Long adreca]
             $tipus = lib_.CAR_; 
             $adreca = bc_.addConstant("C",$car.text);
         }
-      | op=TK_OP_NOT t=expressio
-            {
-                $tipus = $t.tipus;
-                if($t.tipus != lib_.BOOL_){ // Si no és boolea
-                    error = true;
-                    System.out.println("Error de terme detectat a la linia " + $op.line);
-                    System.exit(-1);
-                }
-            }
-      ;
-     
+        ) 
+    ;
 /////////////////////
 // Regles lèxiques //
 /////////////////////

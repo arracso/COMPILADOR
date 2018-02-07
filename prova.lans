@@ -1,8 +1,12 @@
 // comenta ri
 
 programa test
-	escriure(2);
-    escriure(5);
-	escriureln(2);
+	escriure(2,4,5);
+    escriure(5.3);
+	escriureln(2,7.554,8);
     escriureln(5);
+    escriure("ssdfsd true fasle 'c' sdfsd");
+    escriureln("sdfsd ""fasle 'c' sdfsd");
+    
+    
 fprograma

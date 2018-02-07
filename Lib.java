@@ -23,20 +23,54 @@ public class Lib  {
     public static final char REAL_ = 'F';
     public static final char CAR_ = 'C';
     public static final char BOOL_ = 'Z';
+    public static final char STR_ = 'S';
     
     public Lib() {
     }
     
-    public Vector<Long> escriure_ (char tipus, Long adreca, Boolean saltLinia, Bytecode bc_){
+    // Imprimim un missatge per pantalla
+    public Vector<Long> escriure(char tipus, Long adreca, Boolean saltLinia, Bytecode bc_){
         Vector<Long> trad = new Vector<Long>(12);
         if(tipus == ENTER_){
-            // Imprimim un missatge per pantalla
+            
             trad.add(bc_.LDC_W);
             trad.add(bc_.nByte(adreca,2));
             trad.add(bc_.nByte(adreca,1));
             trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutInt,2));
             trad.add(bc_.nByte(bc_.mPutInt,1));
+        }
+        else if(tipus == REAL_){
+            trad.add(bc_.LDC_W);
+            trad.add(bc_.nByte(adreca,2));
+            trad.add(bc_.nByte(adreca,1));
+            trad.add(bc_.INVOKESTATIC);
+            trad.add(bc_.nByte(bc_.mPutFloat,2));
+            trad.add(bc_.nByte(bc_.mPutFloat,1));
+        }
+        else if(tipus == CAR_){
+            trad.add(bc_.LDC_W);
+            trad.add(bc_.nByte(adreca,2));
+            trad.add(bc_.nByte(adreca,1));
+            trad.add(bc_.INVOKESTATIC);
+            trad.add(bc_.nByte(bc_.mPutChar,2));
+            trad.add(bc_.nByte(bc_.mPutChar,1));
+        }
+        else if(tipus == BOOL_){
+            trad.add(bc_.LDC_W);
+            trad.add(bc_.nByte(adreca,2));
+            trad.add(bc_.nByte(adreca,1));
+            trad.add(bc_.INVOKESTATIC);
+            trad.add(bc_.nByte(bc_.mPutBoolean,2));
+            trad.add(bc_.nByte(bc_.mPutBoolean,1));
+        }
+        else if(tipus == STR_){
+            trad.add(bc_.LDC_W);
+            trad.add(bc_.nByte(adreca,2));
+            trad.add(bc_.nByte(adreca,1));
+            trad.add(bc_.INVOKESTATIC);
+            trad.add(bc_.nByte(bc_.mPutString,2));
+            trad.add(bc_.nByte(bc_.mPutString,1));
         }
         if(saltLinia){
             Long barN=bc_.addConstant("C","\n");
@@ -47,6 +81,6 @@ public class Lib  {
             trad.add(bc_.nByte(bc_.mPutChar,2));
             trad.add(bc_.nByte(bc_.mPutChar,1));
         }
-            return trad;
+        return trad;
     } 
 }
