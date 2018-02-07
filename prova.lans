@@ -1,5 +1,5 @@
 // comenta ri
 
 programa test
-    escriure("hola");
+    escriureln('a');
 fprograma
