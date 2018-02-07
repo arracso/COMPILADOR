@@ -33,7 +33,7 @@
             Vector<Long> trad = new Vector<Long>(12);
             if(tok.tipus == defTip_.ENTER_)
             {
-                // Imprimim un missatge per pantalla
+                // Imprimim un missatge per pantall    a
                 trad.add(bc_.LDC_W);
                 trad.add(bc_.nByte(adreca,2));
                 trad.add(bc_.nByte(adreca,1));
