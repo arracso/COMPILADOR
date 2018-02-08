@@ -497,18 +497,26 @@ llegir returns [Vector<Long> trad]
             }
             else if(r.getTipus()==lib_.CAR_)
             {
-                // Entrar un real  
+                Long refArray = bc_.addArrayDef(0,String.valueOf(lib_.CAR_));
+                // Long adrInt = bc_.addConstant(String.valueOf(lib_.ENTER_), r.getAdreca().toString());
+                // Entrar un caracter  
                 $trad.add(bc_.LDC_W);
                 $trad.add(bc_.nByte(msg_llegir_car,2));
                 $trad.add(bc_.nByte(msg_llegir_car,1));
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mPutString,2));
                 $trad.add(bc_.nByte(bc_.mPutString,1));
-                $trad.add(bc_.CASTORE);
+                // es queixa de que no troba un integer....
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mGetChar,2));
                 $trad.add(bc_.nByte(bc_.mGetChar,1));
-	   	$trad.add(r.getAdreca());
+                $trad.add(bc_.BIPUSH);
+                $trad.add(r.getAdreca());
+                $trad.add(bc_.LDC_W);
+                $trad.add(bc_.nByte(refArray,2));
+                $trad.add(bc_.nByte(refArray,1));
+                $trad.add(bc_.CASTORE);
+                
                 
             }
             else if(r.getTipus()==lib_.BOOL_)
@@ -525,6 +533,7 @@ llegir returns [Vector<Long> trad]
                 $trad.add(bc_.nByte(bc_.mGetBoolean,2));
                 $trad.add(bc_.nByte(bc_.mGetBoolean,1));
 	   	$trad.add(r.getAdreca());
+                $trad.add(bc_.addArrayDef(1,String.valueOf(lib_.CAR_)));
             }
             else
             {
@@ -532,6 +541,8 @@ llegir returns [Vector<Long> trad]
                 System.out.println("ANOMALIA EN: " + $lin.line+"\nDe quin tipus es?: "+$id.text);
                 System.exit(-1);
             }
+            if(!r.teValor())
+                r.putValor();
                                          
          };
 
@@ -556,6 +567,11 @@ expressio returns [Vector<Long> trad, char tipus, Long adreca]
                 System.out.println("Error de booleans detectat a la linia " + $op.line);
                 System.exit(-1);
             }
+            $trad.addAll($t2.trad);
+            if($op.text.equals("&"))
+                $trad.add(bc_.IAND);
+            else
+                $trad.add(bc_.IOR);
         })*
     ;
 
@@ -579,6 +595,7 @@ exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca]
                 $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
                 System.exit(-1);
             }
+            if($op.text.equals("&"))
         })* 
     ;
 
