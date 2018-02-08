@@ -78,8 +78,8 @@ programa returns [Vector<Long> trad]
 
 // Estructura declaracio constants 
 decl_constants
-    @init{System.out.println("+ 'decl_constants'");}
-    @after{System.out.println("- 'decl_constants'");}
+    //@init{System.out.println("+ 'decl_constants'");}
+    //@after{System.out.println("- 'decl_constants'");}
     :    TK_PC_CONST
                     (
                         t=tipus_basic id1=TK_IDENT TK_OP_POINTS l1=literal_tipus_basic
@@ -329,11 +329,16 @@ crida_accio  returns [Vector<Long> trad]
 param_reals : expressio (TK_OP_COMA expressio)* ;
 
 // [FER] --- estructura condicional
-condicional  returns [Vector<Long> trad]
-    @init{ $trad = new Vector<Long>(0);
-          /*System.out.println("+ 'condicional'");*/}
+condicional  returns [Vector<Long> trad] locals [Vector<Long> trad1, Vector<Long> trad2]
+    @init
+    {
+          $trad = new Vector<Long>(10);
+          $trad1 = new Vector<Long>(5);
+          $trad2 = new Vector<Long>(5);
+          /*System.out.println("+ 'condicional'");*/
+    }
     //@after{System.out.println("- 'condicional'");}
-    :   c=TK_PC_IF e=expressio TK_PC_THEN
+    :   c=TK_PC_IF e=expressio { $trad.addAll($e.trad); } TK_PC_THEN
                 {
                     if($e.tipus != lib_.BOOL_){
                         error=true;
@@ -341,9 +346,23 @@ condicional  returns [Vector<Long> trad]
                         System.exit(-1);
                     }
                 }
-                    sentencia*
+                    (s1=sentencia { $trad1.addAll($s1.trad); })*
+                    {
+                        Long salt1 = new Long(2 + $trad1.size() + 3 + 1); // Bytes + Sentencies + (GOTO + Bytes) + 1
+                        $trad.add(bc_.IFEQ);
+                        $trad.add(bc_.nByte(salt1,2));
+                        $trad.add(bc_.nByte(salt1,1));
+                        $trad.addAll($trad1);
+                    }
                 ( TK_PC_ELSE
-                    sentencia*)?
+                    (s2=sentencia { $trad2.addAll($s2.trad); })*)?
+                    {
+                        Long salt2 = new Long(2 + $trad2.size() + 1); // Bytes + Sentencies + 1
+                        $trad.add(bc_.GOTO);
+                        $trad.add(bc_.nByte(salt2,2));
+                        $trad.add(bc_.nByte(salt2,1));
+                        $trad.addAll($trad2);
+                    }
                 TK_PC_FIF
             ;
 
