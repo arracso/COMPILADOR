@@ -454,10 +454,17 @@ llegir returns [Vector<Long> trad]
             {
                 error=true;
                 System.out.println("Error llegir per a la linia " + $lin.line+"\n"+
-                "IDENT: '"+$id.text+"' no existeibc_.");
+                "IDENT: '"+$id.text+"' no existeix.");
                 System.exit(-1); 
             }
             Registre r = TS.obtenir($id.text);
+            if(!r.modificable())
+            {
+                error=true;
+                System.out.println("Error llegir per a la linia " + $lin.line+"\n"+
+                "IDENT: '"+$id.text+"' no es modificable.");
+                System.exit(-1); 
+            }
             if(r.getTipus()==lib_.ENTER_)
             {   
                 // Entrar un enter 
@@ -497,11 +504,12 @@ llegir returns [Vector<Long> trad]
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mPutString,2));
                 $trad.add(bc_.nByte(bc_.mPutString,1));
+                $trad.add(bc_.CASTORE);
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mGetChar,2));
                 $trad.add(bc_.nByte(bc_.mGetChar,1));
-	   	$trad.add(bc_.ISTORE);
 	   	$trad.add(r.getAdreca());
+                
             }
             else if(r.getTipus()==lib_.BOOL_)
             {
@@ -512,10 +520,10 @@ llegir returns [Vector<Long> trad]
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mPutString,2));
                 $trad.add(bc_.nByte(bc_.mPutString,1));
+	   	$trad.add(bc_.CASTORE);
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mGetBoolean,2));
                 $trad.add(bc_.nByte(bc_.mGetBoolean,1));
-	   	$trad.add(bc_.ISTORE);
 	   	$trad.add(r.getAdreca());
             }
             else
@@ -596,8 +604,8 @@ exprArit returns [Vector<Long> trad, char tipus, Long adreca]
                 System.exit(-1);
             }
             if ($t2.tipus == lib_.REAL_){
-                if($t1.tipus == lib_.ENTER_)
-                {
+                if($tipus == lib_.ENTER_)
+                {   
                     $trad.add(bc_.I2F);
                 }
                 $tipus = lib_.REAL_;
