@@ -285,6 +285,7 @@ assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
               } 
             )? igual=TK_OP_ASSIGN exp=expressio dosPunts=TK_OP_SEMICOL
             {
+                System.out.println("RFSA");
                 $trad = $exp.trad;
                 if($exp.tipus != $tipus){ // si veiem que no tenen el mateix tipus donem error
                     error=true;
@@ -300,6 +301,7 @@ assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
                     $trad.add(bc_.ISTORE);
                     $trad.add($id.getAdreca());
                 }
+
                 else if($tipus == lib_.REAL_)
                 {
                     $trad.add(bc_.FSTORE);
@@ -584,16 +586,12 @@ llegir returns [Vector<Long> trad]
 
 // Estructrura expressions
 // --- expresions booleanes
-expressio returns [Vector<Long> trad, char tipus, Long adreca]
-    @init{ 
-          System.out.println("+ 'expressio'");
-          $adreca = -1L;
-         }
+expressio returns [Vector<Long> trad, char tipus]
+    @init{System.out.println("+ 'expressio'");}
     @after{System.out.println("- 'expressio'");}
     : t1=exprRelacionals 
       { 
         $tipus = $t1.tipus; 
-        $adreca = $t1.adreca;
         $trad = $t1.trad;
       }
         ( op=(TK_OP_AND | TK_OP_OR) t2=exprRelacionals {
@@ -611,13 +609,11 @@ expressio returns [Vector<Long> trad, char tipus, Long adreca]
     ;
 
 // --- expresions relacionals
-exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca] locals [char tip1, char tip2]
-@init{$adreca = -1L;}
+exprRelacionals returns [Vector<Long> trad, char tipus] locals [char tip1, char tip2]
     : t1=exprArit 
       {
         $tipus = $t1.tipus; 
         $tip1 = $t1.tipus;
-        $adreca = $t1.adreca;
         $trad = $t1.trad;
       }
         ( op=(TK_OP_LESSOREQUAL | TK_OP_MOREOREQUAL | TK_OP_EQUAL | TK_OP_NOTEQUAL | TK_OP_LESS | TK_OP_MORE) t2=exprArit {
@@ -768,8 +764,7 @@ exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca] locals [cha
     ;
 
 // --- expresions suma resta. No funciona per a situacions  I+F(+F)*, si prioritses loperacio posant parentesis si
-exprArit returns [Vector<Long> trad, char tipus, Long adreca]
-@init{$adreca = -1L;}
+exprArit returns [Vector<Long> trad, char tipus]
     : t1=exprArit2 
       { 
         System.out.println("T1: "+$t1.text+"   tip: "+$t1.tipus);
@@ -821,12 +816,10 @@ exprArit returns [Vector<Long> trad, char tipus, Long adreca]
     ;
 
 // --- expresions producte divisio
-exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
-@init{$adreca = -1L;}
+exprArit2 returns [Vector<Long> trad, char tipus]
     : t1=expUnari  
       { 
         $tipus = $t1.tipus; 
-        $adreca = $t1.adreca;
         $trad = $t1.trad;
       }
         ( op=(TK_OP_STAR | TK_OP_BAR | TK_OP_CBAR | TK_OP_PERCENT) t2=expUnari {
@@ -894,25 +887,29 @@ exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
     ;
 
 // --- expresions unaries
-expUnari returns [Vector<Long> trad, char tipus, Long adreca]
-@init{$adreca = -1L;}
+expUnari returns [Vector<Long> trad, char tipus]
     : op=(TK_OP_HASH | TK_OP_TILDE)? t=terme {
         if($op != null && $t.tipus != lib_.ENTER_ && $t.tipus != lib_.REAL_){ // Si no es ni enter ni real
             error = true;
             System.out.println("Error de unaris detectat a la linia " + $op.line);
             System.exit(-1);
-        }else{
-            $tipus = $t.tipus;
-            $adreca = $t.adreca;
-            $trad = $t.trad;
-            //Aqui fer opperacions unaries TOP de la pila conte el valor
+         }
+        
+        $tipus = $t.tipus;
+        $trad = $t.trad;
+        //Aqui fer opperacions unaries TOP de la pila conte el valor
+        if($op != null && $op.text.equals("~")) // sha de convertir a enter tot, retorna enter
+        {
+            if($tipus == lib_.ENTER_)
+                $trad.add(bc_.INEG);
+            else
+                $trad.add(bc_.FNEG);
         }
     };
 
-terme returns [Vector<Long> trad,char tipus, Long adreca]
-@init{$trad = new Vector<Long>(10);
-      $adreca = -1L;}
-//@after{System.out.println($adreca);}
+terme returns [Vector<Long> trad,char tipus] locals [Long adreca]
+@init{$adreca = -1L;
+      $trad = new Vector<Long>(10);}
     : 
            id=TK_IDENT 
            { 
@@ -971,7 +968,6 @@ terme returns [Vector<Long> trad,char tipus, Long adreca]
         t=expressio 
         { 
             $tipus = $t.tipus; 
-            $adreca = $t.adreca;
             $trad = $t.trad;
         } 
         TK_OP_RPAREN
@@ -1003,14 +999,28 @@ terme returns [Vector<Long> trad,char tipus, Long adreca]
          }
       | op=TK_OP_NOT t=expressio
             {
+                System.out.println("NOT");
                 if($t.tipus != lib_.BOOL_){ // Si no és boolea
                     error = true;
                     System.out.println("Error de terme detectat a la linia " + $op.line);
                     System.exit(-1);
                 }
                 $tipus = $t.tipus;
-                $adreca = $t.adreca;
                 $trad = $t.trad;
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFEQ);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
             }
       ;
 /////////////////////
