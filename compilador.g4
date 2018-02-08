@@ -320,7 +320,7 @@ assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
            ;
 
 // --- crida accio
-crida_accio  returns [Vector<Long> trad]
+crida_accio returns [Vector<Long> trad]
     @init{ $trad = new Vector<Long>(0);
           /*System.out.println("+ 'crida_accio'");*/}
     //@after{System.out.println("- 'crida_accio'");}
@@ -329,51 +329,53 @@ crida_accio  returns [Vector<Long> trad]
 param_reals : expressio (TK_OP_COMA expressio)* ;
 
 // [FER] --- estructura condicional
-condicional  returns [Vector<Long> trad] locals [Vector<Long> trad1, Vector<Long> trad2]
+condicional returns [Vector<Long> trad] locals [Vector<Long> trad1, Vector<Long> trad2]
     @init
     {
-          $trad = new Vector<Long>(10);
-          $trad1 = new Vector<Long>(5);
-          $trad2 = new Vector<Long>(5);
-          /*System.out.println("+ 'condicional'");*/
+        $trad = new Vector<Long>(10);
+        $trad1 = new Vector<Long>(5);
+        $trad2 = new Vector<Long>(5);
     }
-    //@after{System.out.println("- 'condicional'");}
+    @after{}
     :   c=TK_PC_IF e=expressio { $trad.addAll($e.trad); } TK_PC_THEN
-                {
-                    if($e.tipus != lib_.BOOL_){
-                        error=true;
-                        System.out.println("Error condicional a la linia " + $c.line+ "\nL'EXPRESSIO NO ES DE TIPUS BOLEA.");
-                        System.exit(-1);
-                    }
-                }
-                    (s1=sentencia { $trad1.addAll($s1.trad); })*
-                    {
-                        Long salt1 = new Long(2 + $trad1.size() + 3 + 1); // Bytes + Sentencies + (GOTO + Bytes) + 1
-                        $trad.add(bc_.IFEQ);
-                        $trad.add(bc_.nByte(salt1,2));
-                        $trad.add(bc_.nByte(salt1,1));
-                        $trad.addAll($trad1);
-                    }
-                ( TK_PC_ELSE
-                    (s2=sentencia { $trad2.addAll($s2.trad); })*)?
-                    {
-                        Long salt2 = new Long(2 + $trad2.size() + 1); // Bytes + Sentencies + 1
-                        $trad.add(bc_.GOTO);
-                        $trad.add(bc_.nByte(salt2,2));
-                        $trad.add(bc_.nByte(salt2,1));
-                        $trad.addAll($trad2);
-                    }
-                TK_PC_FIF
-            ;
+        {
+            if($e.tipus != lib_.BOOL_){
+                error=true;
+                System.out.println("Error condicional a la linia " + $c.line+ "\nL'EXPRESSIO NO ES DE TIPUS BOLEA.");
+                System.exit(-1);
+            }
+        }
+            (s1=sentencia { $trad1.addAll($s1.trad); })*
+            {
+                Long salt1 = new Long(2 + $trad1.size() + 3 + 1); // Bytes + Sentencies + (GOTO + Bytes) + 1
+                $trad.add(bc_.IFEQ);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                $trad.addAll($trad1);
+            }
+        ( TK_PC_ELSE
+            (s2=sentencia { $trad2.addAll($s2.trad); })*)?
+            {
+                Long salt2 = new Long(2 + $trad2.size() + 1); // Bytes + Sentencies + 1
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                $trad.addAll($trad2);
+            }
+        TK_PC_FIF
+    ;
 
 // [FER] --- estructura mentre
-bucle   returns [Vector<Long> trad]
-    @init{ $trad = new Vector<Long>(0);
-          /*System.out.println("+ 'bucle'");*/}
-    //@after{System.out.println("- 'bucle'");}
-    : TK_PC_WHILE
-            sentencia*
-        c=TK_PC_EXITIF e=expressio TK_OP_SEMICOL
+bucle returns [Vector<Long> trad] locals [Vector<Long> trad2]
+    @init
+    {
+        $trad = new Vector<Long>(10);
+        $trad2 = new Vector<Long>(5);
+    }
+    @after{ }
+    :   TK_PC_WHILE
+            (s1=sentencia { $trad.addAll($s1.trad); })*
+        c=TK_PC_EXITIF e=expressio { $trad.addAll($e.trad); } TK_OP_SEMICOL
         {
             if($e.tipus != lib_.BOOL_){
                 error=true;
@@ -381,9 +383,22 @@ bucle   returns [Vector<Long> trad]
                 System.exit(-1);
             }
         }
-            sentencia*
+            (s2=sentencia { $trad2.addAll($s2.trad); })*
+            {
+                Long salt1 = new Long(2 + $trad2.size() + 3 + 1); // Bytes + Sentencies + (GOTO + Bytes) + 1
+                $trad.add(bc_.IFNE);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                $trad.addAll($trad2);
+            }
         TK_PC_FWHILE
-      ;
+        {
+            Long salt2 = new Long(-$trad.size()); // Per tornar al prinipi saltem cap amunt totes les instruccions
+            $trad.add(bc_.GOTO);
+            $trad.add(bc_.nByte(salt2,2));
+            $trad.add(bc_.nByte(salt2,1));
+        }
+    ;
 
 // [FER] --- estructura per
 per returns [Vector<Long> trad] locals [Registre regIDEN]
