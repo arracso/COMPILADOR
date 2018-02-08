@@ -8,6 +8,7 @@ public class Registre  {
 	Long adreca_;
     char tipID_; // per saber si el lexema_ es un constant 'c', variable 'v', funcio 'f', accio 'a'
     Lib lib_;
+    Boolean valor_=false;
 
 public Registre() {
 	lexema_="";
@@ -42,6 +43,7 @@ public Registre(String l, char t, char tid, Long a) {
 	tipus_=t;
 	adreca_=a;
     tipID_=tid;
+    if(tipID_ != lib_.VAR_) {valor_ = true;}
 	}
 
 public String getLexema() {
@@ -56,9 +58,14 @@ public Long getAdreca() {
 public char getTipID() {
 	return (tipID_);
 	}
+// retorna cert si es una variable, fals alstrament
 public boolean modificable() {
 	return tipID_==lib_.VAR_;
 	}
+// retorna cert si aquest registre te assignat un valor, fals altrament
+public boolean teValor(){
+    return valor_;
+}
 
 public void putLexema(String l) {
 	lexema_=l;
@@ -72,5 +79,9 @@ public void putAdreca(Long a) {
 public void putTipID(char t) {
 	tipID_=t;
 	}
+// assinga a valor_ = true, voldra dir que aquest registre te un vaolr assignat
+public void putValor(){
+    valor_ = true;
+}
 
 }

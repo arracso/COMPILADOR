@@ -25,49 +25,29 @@ public class Lib  {
     public static final char BOOL_ = 'Z';
     public static final char STR_ = 'S';
     
-    public Lib() {
-    }
-    
+    public Lib(){}
+        
     // Imprimim un missatge per pantalla
-    public Vector<Long> escriure(char tipus, Long adreca, Bytecode bc_){
-        Vector<Long> trad = new Vector<Long>(12);
+    public Vector<Long> escriure(char tipus, Bytecode bc_){
+        Vector<Long> trad = new Vector<Long>(3);
+        trad.add(bc_.INVOKESTATIC);
         if(tipus == ENTER_){
-            trad.add(bc_.LDC_W);
-            trad.add(bc_.nByte(adreca,2));
-            trad.add(bc_.nByte(adreca,1));
-            trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutInt,2));
             trad.add(bc_.nByte(bc_.mPutInt,1));
         }
         else if(tipus == REAL_){
-            trad.add(bc_.LDC_W);
-            trad.add(bc_.nByte(adreca,2));
-            trad.add(bc_.nByte(adreca,1));
-            trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutFloat,2));
             trad.add(bc_.nByte(bc_.mPutFloat,1));
         }
         else if(tipus == CAR_){
-            trad.add(bc_.LDC_W);
-            trad.add(bc_.nByte(adreca,2));
-            trad.add(bc_.nByte(adreca,1));
-            trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutChar,2));
             trad.add(bc_.nByte(bc_.mPutChar,1));
         }
         else if(tipus == BOOL_){
-            trad.add(bc_.LDC_W);
-            trad.add(bc_.nByte(adreca,2));
-            trad.add(bc_.nByte(adreca,1));
-            trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutBoolean,2));
             trad.add(bc_.nByte(bc_.mPutBoolean,1));
         }
         else if(tipus == STR_){ // No ho fa del tot be
-            trad.add(bc_.LDC_W);
-            trad.add(bc_.nByte(adreca,2));
-            trad.add(bc_.nByte(adreca,1));
-            trad.add(bc_.INVOKESTATIC);
             trad.add(bc_.nByte(bc_.mPutString,2));
             trad.add(bc_.nByte(bc_.mPutString,1));
         }
