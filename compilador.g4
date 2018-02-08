@@ -596,11 +596,12 @@ expressio returns [Vector<Long> trad, char tipus, Long adreca]
     ;
 
 // --- expresions relacionals
-exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca]
+exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca] locals [char tip1, char tip2]
 @init{$adreca = -1L;}
     : t1=exprArit 
       {
         $tipus = $t1.tipus; 
+        $tip1 = $t1.tipus;
         $adreca = $t1.adreca;
         $trad = $t1.trad;
       }
@@ -615,7 +616,88 @@ exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca]
                 $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
                 System.exit(-1);
             }
-            if($op.text.equals("&"))
+            $tip2 = $t2.tipus;
+            // per fer les operacions relacionals, per forca hem de tenir reals
+            if($t1.tipus == lib_.ENTER_){
+                $trad.add(bc_.I2F);
+                $tip1 = lib_.REAL_;
+            }
+            $trad.addAll($t2.trad);
+            if($t2.tipus == lib_.ENTER_){
+                $tip2 = lib_.REAL_;
+                $trad.add(bc_.I2F);
+            }
+
+            if($tip1 != $tip2)
+            {
+                error=true;
+                System.out.println("Error de relacionals detectat a la linia " + $op.line+"\n"+
+                $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
+                System.exit(-1);
+            }
+            
+            // FCMPG real1,real2: real1<real2 = -1,,,,real1=real2=0,,,,,real1>real2=1
+            // real1=t2   real2 = t1
+            $trad.add(bc_.FCMPG);
+            if($op.text.equals("=="))
+            {
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFEQ);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
+            }
+            else if($op.text.equals("/="))
+            {
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFNE);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
+            }
+            if($t1.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_ || $t2.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_)
+            {
+                error=true;
+                System.out.println("Error de relacionals detectat a la linia " + $op.line+"\n"+
+                $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
+                System.exit(-1);
+            }
+            if($op.text.equals("<="))
+            {
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFEQ);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
+            }
+            
         })* 
     ;
 
