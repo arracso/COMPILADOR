@@ -235,16 +235,17 @@ impl_funcio :   TK_PC_FUNCIO TK_IDENT TK_OP_LPAREN param_formals? TK_OP_RPAREN T
 
 // Estructura Sentencies
 sentencia returns [Vector<Long> trad]
-@init{$trad = new Vector<Long>(300);}
+@init{}
 @after{}
-          : ass=assignacio { $trad.addAll($ass.trad);}
-          | cri=crida_accio { $trad.addAll($cri.trad);}
-          | con=condicional { $trad.addAll($con.trad);}
-          | buc=bucle { $trad.addAll($buc.trad);}
-          | pe=per { $trad.addAll($pe.trad);}
-          | esc=escriure { $trad.addAll($esc.trad);}
-          | lleg=llegir { $trad.addAll($lleg.trad);}        
+          : ass=assignacio { $trad = $ass.trad;}
+          | cri=crida_accio { $trad = $cri.trad;}
+          | con=condicional { $trad = $con.trad;}
+          | buc=bucle { $trad = $buc.trad;}
+          | pe=per { $trad = $pe.trad;}
+          | esc=escriure { $trad = $esc.trad;}
+          | lleg=llegir { $trad = $lleg.trad;}        
           ;
+
 // [FER][DONE] assignacio (NO FET tupla i vector)
 assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
     @init{System.out.println("+ 'assignacio'");}
