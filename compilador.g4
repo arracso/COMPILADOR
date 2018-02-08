@@ -642,7 +642,6 @@ exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca] locals [cha
                 $tip2 = lib_.REAL_;
                 $trad.add(bc_.I2F);
             }
-
             if($tip1 != $tip2)
             {
                 error=true;
@@ -691,15 +690,67 @@ exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca] locals [cha
             if($t1.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_ || $t2.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_)
             {
                 error=true;
-                System.out.println("Error de relacionals detectat a la linia " + $op.line+"\n"+
+                System.out.println("Error de relacionals detectat a la linia " + $op.line+
+                ".\n NO ES PERMET AQUEST TIPUS PER A AQUESTES OPERACIONS\n"+
                 $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
                 System.exit(-1);
             }
-            if($op.text.equals("<="))
+            if($op.text.equals("<"))
             {
                 Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
                 Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
-                $trad.add(bc_.IFEQ);
+                $trad.add(bc_.IFLT);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
+            }
+            else if($op.text.equals(">"))
+            {
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFGT);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
+            }
+            else if($op.text.equals("<="))
+            {
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFLE);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                // Afegir 0 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(0L);
+                $trad.add(bc_.GOTO);
+                $trad.add(bc_.nByte(salt2,2));
+                $trad.add(bc_.nByte(salt2,1));
+                // Afegir 1 a la pila
+                $trad.add(bc_.BIPUSH);
+                $trad.add(1L);
+            }
+            else if($op.text.equals(">="))
+            {
+                Long salt1 = 8L; // 2 bytes + 2 de afegir a la pila + 3 de goto + 1 de linia seguent
+                Long salt2 = 5L; // 2 bytes + 2 de afegir a la pila + 1 de linia seguent
+                $trad.add(bc_.IFGE);
                 $trad.add(bc_.nByte(salt1,2));
                 $trad.add(bc_.nByte(salt1,1));
                 // Afegir 0 a la pila
