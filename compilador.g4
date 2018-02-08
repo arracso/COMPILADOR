@@ -306,8 +306,9 @@ assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
                 }
                 else if($tipus == lib_.CAR_)
                 {
-                    $trad.add(bc_.CASTORE);
                     $trad.add($id.getAdreca());
+                    
+                    $trad.add(bc_.CASTORE);
                 }
                 else if($tipus == lib_.BOOL_)
                 {
@@ -589,9 +590,26 @@ exprArit returns [Vector<Long> trad, char tipus, Long adreca]
                 "\n"+$t1.text+": "+$t1.tipus+
                 "\n"+$t2.text+": "+$t2.tipus);
                 System.exit(-1);
-            }else if ($t2.tipus == lib_.REAL_){
+            }
+            if ($t2.tipus == lib_.REAL_){
                 $tipus = lib_.REAL_;
             }
+            $trad.addAll($t2.trad);
+            if($op.text.equals("+"))
+            {
+                if($tipus == lib_.ENTER_) 
+                    $trad.add(bc_.IADD);
+                else
+                    $trad.add(bc_.FADD);
+            }
+            else
+            {
+                if($tipus == lib_.ENTER_) 
+                    $trad.add(bc_.ISUB);
+                else
+                    $trad.add(bc_.FSUB);
+            }
+            
         })*
     ;
 
@@ -609,7 +627,8 @@ exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
                 error=true;
                 System.out.println("Error de aritmetic_2 detectat a la linia " + $op.line);
                 System.exit(-1);
-            }else if ($t2.tipus == lib_.REAL_){
+            }
+            if ($t2.tipus == lib_.REAL_){
                 $tipus = lib_.REAL_;
             }
         })*
@@ -657,15 +676,32 @@ terme returns [Vector<Long> trad,char tipus, Long adreca]
             $adreca = r.getAdreca();
             if(r.getTipID() == lib_.CONST_)
             {
-                $trad.add(bc_.LDC_W);
-                $trad.add(bc_.nByte(r.getAdreca(),2));
-                $trad.add(bc_.nByte(r.getAdreca(),1));
+                if(r.getTipus()==lib_.ENTER_ || r.getTipus()==lib_.REAL_)
+                {
+                    $trad.add(bc_.LDC_W);
+                    $trad.add(bc_.nByte(r.getAdreca(),2));
+                    $trad.add(bc_.nByte(r.getAdreca(),1));
+                }
+                else if(r.getTipus()==lib_.CAR_)
+                {
+                    // carreguem ref.Array
+                    $trad.add(bc_.ALOAD);
+                    $trad.add(bc_.LDC_W);
+                    $trad.add(bc_.nByte(r.getAdreca(),2));
+                    $trad.add(bc_.nByte(r.getAdreca(),1));
+                    
+                }
+                else if(r.getTipus()==lib_.BOOL_)
+                {
+                    $trad.add(bc_.BALOAD);
+                    $trad.add(r.getAdreca());
+                }
+
             }
             else if(r.getTipID() == lib_.VAR_)
             {
                 if(r.getTipus()==lib_.ENTER_)
                 {
-                    System.out.println("a");
                     $trad.add(bc_.ILOAD);
                     $trad.add(r.getAdreca());
                 }
