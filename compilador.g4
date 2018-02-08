@@ -399,9 +399,9 @@ per returns [Vector<Long> trad] locals [Registre regIDEN]
 
 // [FER GEN CODI] --- estructura entrades sortides
 escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
-@init{$saltlinia = false;
-      System.out.println("+ 'escriure'");
-      $trad = new Vector<Long>(12);
+@init{  $saltlinia = false;
+        System.out.println("+ 'escriure'");
+        $trad = new Vector<Long>(30);
       }
 @after{
         if($saltlinia){ 
@@ -574,17 +574,21 @@ exprRelacionals returns [Vector<Long> trad, char tipus, Long adreca]
         })* 
     ;
 
-// --- expresions suma resta
+// --- expresions suma resta. No funciona per a situacions  I+F(+F)*, si prioritses loperacio posant parentesis si
 exprArit returns [Vector<Long> trad, char tipus, Long adreca]
 @init{$adreca = -1L;}
     : t1=exprArit2 
       { 
+        System.out.println("T1: "+$t1.text+"   tip: "+$t1.tipus);
+        // agafem les operacions de t1, en el top de lapila contrindra el valor de t1
         $tipus = $t1.tipus;
-        $adreca = $t1.adreca;
         $trad = $t1.trad;
       }
-        ( op=(TK_OP_PLUS | TK_OP_MINUS) t2=exprArit2 {
-            if(($t1.tipus != lib_.ENTER_ && $t1.tipus != lib_.REAL_) || ($t2.tipus != lib_.ENTER_ && $t2.tipus != lib_.REAL_)){ // Si no son ni enters ni reals
+        ( op=(TK_OP_PLUS | TK_OP_MINUS) t2=exprArit2 
+          {
+            System.out.println("T2: "+$t2.text+"   tip: "+$t2.tipus);
+            // Si no son ni enters ni reals
+            if(($t1.tipus != lib_.ENTER_ && $t1.tipus != lib_.REAL_) || ($t2.tipus != lib_.ENTER_ && $t2.tipus != lib_.REAL_)){ 
                 error=true;
                 System.out.println("Error de aritmetic detectat a la linia " + $op.line+
                 "\n"+$t1.text+": "+$t1.tipus+
@@ -592,9 +596,19 @@ exprArit returns [Vector<Long> trad, char tipus, Long adreca]
                 System.exit(-1);
             }
             if ($t2.tipus == lib_.REAL_){
+                if($t1.tipus == lib_.ENTER_)
+                {
+                    $trad.add(bc_.I2F);
+                }
                 $tipus = lib_.REAL_;
             }
+            // Agafem les operacions de t2
             $trad.addAll($t2.trad);
+            if($tipus == lib_.REAL_ && $t2.tipus == lib_.ENTER_)
+            {
+                $trad.add(bc_.I2F);
+            }
+            // fem les operacions SUMA o RESTA, en el top de la pila tindrem els 2 valors
             if($op.text.equals("+"))
             {
                 if($tipus == lib_.ENTER_) 
@@ -630,6 +644,45 @@ exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
             }
             if ($t2.tipus == lib_.REAL_){
                 $tipus = lib_.REAL_;
+            }
+            
+            if($op.text.equals("*"))
+            {
+                if($tipus == lib_.ENTER_) 
+                    $trad.add(bc_.IMUL);
+                else
+                    $trad.add(bc_.FMUL);
+            }
+            else if($op.text.equals("/")) // sha de convertir a real tot, retorna real
+            {
+                if($tipus == lib_.ENTER_)
+                {
+                    $tipus = lib_.REAL_;
+                    $trad.add(bc_.IDIV);
+                }
+                else
+                    $trad.add(bc_.FDIV);
+                
+            }
+            else if($op.text.equals("\\")) // sha de convertir a enter tot, retorna enter
+            {
+                if($tipus == lib_.ENTER_) 
+                    $trad.add(bc_.IDIV);
+                else
+                {
+                    $trad.add(bc_.FDIV);
+                    $tipus = lib_.ENTER_;
+                }
+            }
+            else if($op.text.equals("%")) // retorna enter
+            {
+                if($tipus == lib_.ENTER_) 
+                    $trad.add(bc_.IREM);
+                else
+                {
+                    $trad.add(bc_.FREM);
+                    $tipus = lib_.ENTER_;
+                }
             }
         })*
     ;
@@ -676,26 +729,9 @@ terme returns [Vector<Long> trad,char tipus, Long adreca]
             $adreca = r.getAdreca();
             if(r.getTipID() == lib_.CONST_)
             {
-                if(r.getTipus()==lib_.ENTER_ || r.getTipus()==lib_.REAL_)
-                {
-                    $trad.add(bc_.LDC_W);
-                    $trad.add(bc_.nByte(r.getAdreca(),2));
-                    $trad.add(bc_.nByte(r.getAdreca(),1));
-                }
-                else if(r.getTipus()==lib_.CAR_)
-                {
-                    // carreguem ref.Array
-                    $trad.add(bc_.ALOAD);
-                    $trad.add(bc_.LDC_W);
-                    $trad.add(bc_.nByte(r.getAdreca(),2));
-                    $trad.add(bc_.nByte(r.getAdreca(),1));
-                    
-                }
-                else if(r.getTipus()==lib_.BOOL_)
-                {
-                    $trad.add(bc_.BALOAD);
-                    $trad.add(r.getAdreca());
-                }
+                $trad.add(bc_.LDC_W);
+                $trad.add(bc_.nByte(r.getAdreca(),2));
+                $trad.add(bc_.nByte(r.getAdreca(),1));
 
             }
             else if(r.getTipID() == lib_.VAR_)
@@ -755,7 +791,6 @@ terme returns [Vector<Long> trad,char tipus, Long adreca]
         }
         ) 
         {
-            System.out.println(2);
             $trad.add(bc_.LDC_W);
             $trad.add(bc_.nByte($adreca,2));
             $trad.add(bc_.nByte($adreca,1));

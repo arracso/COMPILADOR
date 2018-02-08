@@ -779,7 +779,7 @@ public Long addConstant(String desc,String val){
 	break;
 	case'Z': {
 		Integer i;
-		if (val=="Cert") {i=1;} else {i=0;};
+		if (val.equals("Cert")) {i=1;} else {i=0;};
 		CONSTANT_Integer_info x=new CONSTANT_Integer_info(new Long(i));
 		constant_pool.add(x);
 		ret=new Long(constant_pool.size());
