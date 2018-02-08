@@ -836,9 +836,18 @@ exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
                 System.exit(-1);
             }
             if ($t2.tipus == lib_.REAL_){
+                if($tipus == lib_.ENTER_)
+                {   
+                    $trad.add(bc_.I2F);
+                }
                 $tipus = lib_.REAL_;
             }
-            
+            // Agafem les operacions de t2
+            $trad.addAll($t2.trad);
+            if($tipus == lib_.REAL_ && $t2.tipus == lib_.ENTER_)
+            {
+                $trad.add(bc_.I2F);
+            }
             if($op.text.equals("*"))
             {
                 if($tipus == lib_.ENTER_) 
@@ -848,24 +857,27 @@ exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
             }
             else if($op.text.equals("/")) // sha de convertir a real tot, retorna real
             {
-                if($tipus == lib_.ENTER_)
+                if($tipus != lib_.REAL_)
                 {
                     $tipus = lib_.REAL_;
-                    $trad.add(bc_.IDIV);
+                    $trad.add(bc_.ISTORE_0); // guardem t2
+                    $trad.add(bc_.I2F); // pasem I -> R el t1
+                    $trad.add(bc_.ILOAD_0); // recargem t2
+                    $trad.add(bc_.I2F); // pasem I -> R el t2
                 }
-                else
-                    $trad.add(bc_.FDIV);
-                
+                $trad.add(bc_.FDIV);                
             }
             else if($op.text.equals("\\")) // sha de convertir a enter tot, retorna enter
             {
-                if($tipus == lib_.ENTER_) 
-                    $trad.add(bc_.IDIV);
-                else
+                if($tipus != lib_.ENTER_)
                 {
-                    $trad.add(bc_.FDIV);
                     $tipus = lib_.ENTER_;
+                    $trad.add(bc_.ISTORE_0); // guardem t2
+                    $trad.add(bc_.F2I); // pasem I -> R el t1
+                    $trad.add(bc_.ILOAD_0); // recargem t2
+                    $trad.add(bc_.F2I); // pasem I -> R el t2
                 }
+                $trad.add(bc_.IDIV);
             }
             else if($op.text.equals("%")) // retorna enter
             {
@@ -874,6 +886,7 @@ exprArit2 returns [Vector<Long> trad, char tipus, Long adreca]
                 else
                 {
                     $trad.add(bc_.FREM);
+                    $trad.add(bc_.F2I);
                     $tipus = lib_.ENTER_;
                 }
             }
