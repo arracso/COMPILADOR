@@ -330,7 +330,7 @@ crida_accio returns [Vector<Long> trad]
             ;
 param_reals : expressio (TK_OP_COMA expressio)* ;
 
-// [FER] --- estructura condicional
+// [FER][DONE] --- estructura condicional
 condicional returns [Vector<Long> trad] locals [Vector<Long> trad1, Vector<Long> trad2]
     @init
     {
@@ -367,7 +367,7 @@ condicional returns [Vector<Long> trad] locals [Vector<Long> trad1, Vector<Long>
         TK_PC_FIF
     ;
 
-// [FER] --- estructura mentre
+// [FER][DONE] --- estructura mentre
 bucle returns [Vector<Long> trad] locals [Vector<Long> trad2]
     @init
     {
@@ -402,11 +402,14 @@ bucle returns [Vector<Long> trad] locals [Vector<Long> trad2]
         }
     ;
 
-// [FER] --- estructura per
-per returns [Vector<Long> trad] locals [Registre regIDEN]
-    @init{ $trad = new Vector<Long>(0);
-          /*System.out.println("+ 'per'");*/}
-    //@after{System.out.println("- 'per'");}
+// [FER][DONE] --- estructura per
+per returns [Vector<Long> trad] locals [Registre regIDEN, Vector<Long> trad1]
+    @init
+    {
+        $trad = new Vector<Long>(0);
+        $trad1 = new Vector<Long>(0);
+    }
+    @after{}
     :   f=TK_PC_FOR (id=TK_IDENT TK_OP_ASSIGN e1=expressio) TK_PC_TO e2=expressio TK_PC_DO
         {
             if(!TS.existeix($id.text))
@@ -429,9 +432,44 @@ per returns [Vector<Long> trad] locals [Registre regIDEN]
                 System.out.println("Error de TIPUS en el PER per a la linia " + $f.line+"\n");
                 System.exit(-1);
             }
+            else
+            {
+                // Assignacio Inicial (x + 3)
+                $trad.addAll($e1.trad);
+                $trad.add(bc_.DUP); // Punt de salt2
+                $trad.add(bc_.ISTORE);
+                $trad.add($regIDEN.getAdreca());
+                if(!$regIDEN.teValor()) $regIDEN.putValor();
+            }
         }
-        sentencia*
-      TK_PC_FFOR
+            (s=sentencia { $trad1.addAll($s.trad); })*
+            {
+                // Salt 1 (x + 3)
+                $trad.addAll($e2.trad);
+                Long salt1 = new Long(2 + $trad1.size() + 5 + 3 + 1);
+                $trad.add(bc_.IF_ICMPEQ);
+                $trad.add(bc_.nByte(salt1,2));
+                $trad.add(bc_.nByte(salt1,1));
+                
+                // Sentencies (x)
+                $trad.addAll($trad1);
+            }
+        TK_PC_FFOR
+        {
+            // Increment de id (5)
+            $trad.add(bc_.ILOAD); // Carreguem id a la pila
+            $trad.add($regIDEN.getAdreca());
+            $trad.add(bc_.BIPUSH); // Carreguem 1 a la pila
+            $trad.add(bc_.nByte(new Long(1),1));
+            $trad.add(bc_.IADD); // Deixem el resultat a la pila
+            
+            // Salt 2 (3)
+            Long salt2 = new Long(-($trad.size()-$e1.trad.size())); // Saltem cap amunt totes les instruccions
+            $trad.add(bc_.GOTO);
+            $trad.add(bc_.nByte(salt2,2));
+            $trad.add(bc_.nByte(salt2,1));
+            // Punt de salt1
+        }   
     ;
 
 // [FER GEN CODI] --- estructura entrades sortides
