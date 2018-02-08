@@ -13,5 +13,5 @@ Per poder veure les llibreries s'ha de fer un set de la variable d'entorn CLASSP
 	// generar recognizer amb ANTLR
 	javac *.java
 	java -classpath %CLASSPATH%;. Main program.lans
-	java _compilat_
+	java -cp . _compilat_
 
