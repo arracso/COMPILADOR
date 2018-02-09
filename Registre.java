@@ -1,13 +1,16 @@
 // Josep Suy abril 2007
-
+// Modificat per 
+// Gauchola Vilardell, Jaume 
+// Raya i Casanova, Òscar 
+// per tal de fer la pràctica de compiladors 2017-2018
 
 public class Registre  {
 
-	String lexema_;
-	char tipus_;
-	Long adreca_;
-    char tipID_; // per saber si el lexema_ es un constant 'c', variable 'v', funcio 'f', accio 'a'
-    Lib lib_;
+	String lexema_; // nom registre
+	char tipus_;    // tipus de dades assignada
+	Long adreca_;   // adreca a onn esta el valor de la dada
+    char tipID_;    // per saber si el lexema_ es un constant 'c', variable 'v', funcio 'f', accio 'a'
+    Lib lib_;       // llibreria afegida
     Boolean valor_=false; // per saber si te un valor assignat
 
 public Registre() {
