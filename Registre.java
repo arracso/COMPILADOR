@@ -8,7 +8,7 @@ public class Registre  {
 	Long adreca_;
     char tipID_; // per saber si el lexema_ es un constant 'c', variable 'v', funcio 'f', accio 'a'
     Lib lib_;
-    Boolean valor_=false;
+    Boolean valor_=false; // per saber si te un valor assignat
 
 public Registre() {
 	lexema_="";
@@ -75,9 +75,6 @@ public void putTipus(char t) {
 	}
 public void putAdreca(Long a) {
 	adreca_=a;
-	}
-public void putTipID(char t) {
-	tipID_=t;
 	}
 // assinga a valor_ = true, voldra dir que aquest registre te un vaolr assignat
 public void putValor(){

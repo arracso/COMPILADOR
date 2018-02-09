@@ -576,7 +576,7 @@ llegir returns [Vector<Long> trad]
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mGetFloat,2));
                 $trad.add(bc_.nByte(bc_.mGetFloat,1));
-	   	$trad.add(bc_.ISTORE);
+	   	$trad.add(bc_.FSTORE);
 	   	$trad.add(r.getAdreca());
             }
             else if(r.getTipus()==lib_.CAR_)
