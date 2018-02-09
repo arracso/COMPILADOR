@@ -1059,14 +1059,16 @@ terme returns [Vector<Long> trad,char tipus] locals [Long adreca]
 /////////////////////
 
 //Separadors
-TK_WS : (' '
-      | '\t'
-      | '\n'
-      | '\r') -> skip
+TK_WS : ( ' '
+        | '\t'
+        | '\n'
+        | '\r') -> skip
       ;
 
 //Comentaris
-TK_COMENTARI : ('//' ( ~ ( '\n' | '\r' ))*) -> skip ;
+TK_COMENTARI : ( '//' ( ~ ( '\n' | '\r' ))*
+               | '/*' ( (~'*') | ('*' ~'/') )*? '*/'
+               ) -> skip ;
 
 //Programa
 TK_PC_PROGRAMA : 'programa' ;
