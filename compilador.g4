@@ -571,31 +571,22 @@ llegir returns [Vector<Long> trad]
             }
             else if(r.getTipus()==lib_.CAR_)
             {
-                Long refArray = bc_.addArrayDef(0,String.valueOf(lib_.CAR_));
-                // Long adrInt = bc_.addConstant(String.valueOf(lib_.ENTER_), r.getAdreca().toString());
-                // Entrar un caracter  
+                // Entrar un enter 
                 $trad.add(bc_.LDC_W);
                 $trad.add(bc_.nByte(msg_llegir_car,2));
                 $trad.add(bc_.nByte(msg_llegir_car,1));
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mPutString,2));
                 $trad.add(bc_.nByte(bc_.mPutString,1));
-                // es queixa de que no troba un integer....
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mGetChar,2));
                 $trad.add(bc_.nByte(bc_.mGetChar,1));
-                $trad.add(bc_.BIPUSH);
-                $trad.add(r.getAdreca());
-                $trad.add(bc_.LDC_W);
-                $trad.add(bc_.nByte(refArray,2));
-                $trad.add(bc_.nByte(refArray,1));
-                $trad.add(bc_.CASTORE);
-                
-                
+	   	$trad.add(bc_.ISTORE);
+	   	$trad.add(r.getAdreca());
             }
             else if(r.getTipus()==lib_.BOOL_)
             {
-                // Entrar un real  
+                // Entrar un boolea  
                 $trad.add(bc_.LDC_W);
                 $trad.add(bc_.nByte(msg_llegir_bool,2));
                 $trad.add(bc_.nByte(msg_llegir_bool,1));
@@ -665,11 +656,11 @@ exprRelacionals returns [Vector<Long> trad, char tipus] locals [char tip1, char 
             }
             $tip2 = $t2.tipus;
             // per fer les operacions relacionals, per forca hem de tenir reals
-            if($t1.tipus == lib_.ENTER_){
+            if($t1.tipus == lib_.ENTER_ || $t1.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_){
                 $trad.add(bc_.I2F);
             }
             $trad.addAll($t2.trad);
-            if($t2.tipus == lib_.ENTER_){
+            if($t2.tipus == lib_.ENTER_ || $t1.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_){
                 $trad.add(bc_.I2F);
             }            
             // FCMPG real1,real2: real1<real2 = -1,,,,real1=real2=0,,,,,real1>real2=1
@@ -1196,6 +1187,6 @@ TK_CAR  : '\'' ('\u0000' .. '\u007F') '\'' ; // Del caracter NULL a DEL en ASCII
 
 TK_BOOL : 'Cert' | 'Fals' ;
 
-TK_STRING : '"' (~('\r' | '\n' | '"') | ('\\' ('\r' | '\n' | '"')))* '"' ;
+TK_STRING : '"' (~('\r' | '\n' | '"' | '\\') | ('\\' ('\r' | '\n' | '"' | '\\')))* '"' ;
 
 TK_IDENT : LLETRA (LLETRA | DIGIT | '0' | '_' )* ;
