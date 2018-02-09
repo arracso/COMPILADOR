@@ -12,6 +12,6 @@ Per poder veure les llibreries s'ha de fer un set de la variable d'entorn CLASSP
 	setx CLASSPATH antlr-runtime-4.7.jar // Els proxims cops no caldra aquesta linea
 	// generar recognizer amb ANTLR
 	javac *.java
-	java -classpath %CLASSPATH%;. Main program.lans
+	java -cp %CLASSPATH%;. Main [program]
 	java -cp . _compilat_
 
