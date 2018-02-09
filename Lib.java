@@ -47,7 +47,7 @@ public class Lib  {
             trad.add(bc_.nByte(bc_.mPutBoolean,2));
             trad.add(bc_.nByte(bc_.mPutBoolean,1));
         }
-        else if(tipus == STR_){ // No ho fa del tot be
+        else if(tipus == STR_){
             trad.add(bc_.nByte(bc_.mPutString,2));
             trad.add(bc_.nByte(bc_.mPutString,1));
         }

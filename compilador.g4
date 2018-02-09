@@ -62,7 +62,7 @@ inici
 
 //Programa
 programa returns [Vector<Long> trad]
-@init{$trad = new Vector<Long>(1000);}
+@init{ $trad = new Vector<Long>(1000); }
         :  TK_PC_PROGRAMA TK_IDENT
                 decl_constants? 
                 defi_tipus? 
@@ -78,8 +78,8 @@ programa returns [Vector<Long> trad]
 
 // Estructura declaracio constants 
 decl_constants
-    //@init{System.out.println("+ 'decl_constants'");}
-    //@after{System.out.println("- 'decl_constants'");}
+    @init{}
+    @after{}
     :    TK_PC_CONST
                     (
                         t=tipus_basic id1=TK_IDENT TK_OP_POINTS l1=literal_tipus_basic
@@ -118,17 +118,17 @@ decl_constants
                 ;
 
 literal_tipus_basic returns [char tipus]  
-    :   (ent=TK_ENTER { $tipus = lib_.ENTER_;}
-      | rea=TK_REAL  { $tipus = lib_.REAL_; }
-      | boo=TK_BOOL  { $tipus = lib_.BOOL_; }
-      | car=TK_CAR   { $tipus = lib_.CAR_; }
+    :   ( ent=TK_ENTER { $tipus = lib_.ENTER_;}
+        | rea=TK_REAL  { $tipus = lib_.REAL_; }
+        | boo=TK_BOOL  { $tipus = lib_.BOOL_; }
+        | car=TK_CAR   { $tipus = lib_.CAR_; }
         ) 
     ;
 
 // Estructura declaracio tipus
 tipus_general returns [char tipus]
-    //@init{ System.out.println("Entrem a la regla 'tipus_general'");}
-    //@after{System.out.println("Sortim de la regla 'tipus_general'");}
+    @init{}
+    @after{}
     :   (   tip=tipus_basic { $tipus = $tip.tipus; }
         |   id=TK_IDENT
             {   
@@ -145,8 +145,8 @@ tipus_general returns [char tipus]
     ;
 
 tipus_basic returns [char tipus]
-    //@init{ System.out.println("Entrem a la regla 'tipus_basic'");}
-    //@after{System.out.println("Sortim de la regla 'tipus_basic'");}
+    @init{}
+    @after{}
     :   ( TK_PC_ENTER   { $tipus = lib_.ENTER_; }
         | TK_PC_CAR     { $tipus = lib_.CAR_; }
         | TK_PC_REAL    { $tipus = lib_.REAL_; }
@@ -171,8 +171,8 @@ constr_tupla :  TK_PC_TUPLA
 
 // [FER] Estructura declaracio varibales 
 decl_variables locals [ArrayList<String> idList]
-    //@init{ System.out.println("Entrem a la regla 'decl_variables'");}
-    //@after{System.out.println("Sortim de la regla 'decl_variables'");}
+    @init{}
+    @after{}
     :   TK_PC_VAR
             ( id=TK_IDENT {
                 if(TS.existeix($id.text)){
@@ -235,21 +235,21 @@ impl_funcio :   TK_PC_FUNCIO TK_IDENT TK_OP_LPAREN param_formals? TK_OP_RPAREN T
 
 // Estructura Sentencies
 sentencia returns [Vector<Long> trad]
-@init{}
-@after{}
-          : ass=assignacio { $trad = $ass.trad;}
-          | cri=crida_accio { $trad = $cri.trad;}
-          | con=condicional { $trad = $con.trad;}
-          | buc=bucle { $trad = $buc.trad;}
-          | pe=per { $trad = $pe.trad;}
-          | esc=escriure { $trad = $esc.trad;}
-          | lleg=llegir { $trad = $lleg.trad;}        
-          ;
+    @init{}
+    @after{}
+    : ass=assignacio { $trad = $ass.trad; }
+    | cri=crida_accio { $trad = $cri.trad; }
+    | con=condicional { $trad = $con.trad; }
+    | buc=bucle { $trad = $buc.trad; }
+    | pe=per { $trad = $pe.trad; }
+    | esc=escriure { $trad = $esc.trad; }
+    | lleg=llegir { $trad = $lleg.trad; }        
+    ;
 
 // [FER][DONE] assignacio (NO FET tupla i vector)
 assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
-    @init{System.out.println("+ 'assignacio'");}
-    @after{System.out.println("- 'assignacio'");}
+    @init{}
+    @after{}
     : 
             var=TK_IDENT 
             { 
@@ -285,8 +285,6 @@ assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
               } 
             )? igual=TK_OP_ASSIGN exp=expressio dosPunts=TK_OP_SEMICOL
             {
-                System.out.println("RFSA");
-                $trad = $exp.trad;
                 if($exp.tipus != $tipus){ // si veiem que no tenen el mateix tipus donem error
                     error=true;
                     System.out.println("Error assignacio a la linia " + $igual.line+
@@ -295,37 +293,38 @@ assignacio returns [Vector<Long> trad] locals [char tipus, Registre id]
                     System.exit(-1);
                 }
                 if(!$id.teValor())
-                    $id.putValor();            
+                    $id.putValor();
                 if($tipus == lib_.ENTER_)
                 {
+                    $trad = $exp.trad;
                     $trad.add(bc_.ISTORE);
                     $trad.add($id.getAdreca());
                 }
-
                 else if($tipus == lib_.REAL_)
                 {
+                    $trad = $exp.trad;
                     $trad.add(bc_.FSTORE);
                     $trad.add($id.getAdreca());
                 }
                 else if($tipus == lib_.CAR_)
                 {
+                    $trad = $exp.trad;
+                    $trad.add(bc_.ISTORE);
                     $trad.add($id.getAdreca());
-                    
-                    $trad.add(bc_.CASTORE);
                 }
                 else if($tipus == lib_.BOOL_)
                 {
-                    $trad.add(bc_.BASTORE);
+                    $trad = $exp.trad;
+                    $trad.add(bc_.ISTORE);
                     $trad.add($id.getAdreca());
                 }
             }
-           ;
+    ;
 
 // --- crida accio
 crida_accio returns [Vector<Long> trad]
-    @init{ $trad = new Vector<Long>(0);
-          /*System.out.println("+ 'crida_accio'");*/}
-    //@after{System.out.println("- 'crida_accio'");}
+    @init{ $trad = new Vector<Long>(0); }
+    @after{}
     :  TK_IDENT TK_OP_LPAREN param_reals? TK_OP_RPAREN TK_OP_SEMICOL 
             ;
 param_reals : expressio (TK_OP_COMA expressio)* ;
@@ -474,11 +473,13 @@ per returns [Vector<Long> trad] locals [Registre regIDEN, Vector<Long> trad1]
 
 // [FER GEN CODI] --- estructura entrades sortides
 escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
-@init{  $saltlinia = false;
-        System.out.println("+ 'escriure'");
+    @init
+    {
+        $saltlinia = false;
         $trad = new Vector<Long>(30);
-      }
-@after{
+    }
+    @after
+    {
         if($saltlinia){ 
             $trad.add(bc_.LDC_W);
             $trad.add(bc_.nByte(barN,2));
@@ -487,8 +488,7 @@ escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
             $trad.add(bc_.nByte(bc_.mPutChar,2));
             $trad.add(bc_.nByte(bc_.mPutChar,1));
         }
-       System.out.println("- 'escriure'");
-     }
+    }
     : (TK_PC_WRITE | TK_PC_WRITELINE {$saltlinia = true;}) tk=TK_OP_LPAREN 
       (exp=expressio 
         {
@@ -520,9 +520,8 @@ escriure returns [Vector<Long> trad] locals [Boolean saltlinia]
       ))* TK_OP_RPAREN TK_OP_SEMICOL ;
 
 llegir returns [Vector<Long> trad]
-    @init{ $trad = new Vector<Long>(0);
-          /*System.out.println("+ 'llegir'");*/}
-    //@after{System.out.println("- 'llegir'");}
+    @init{ $trad = new Vector<Long>(0); }
+    @after{}
     : lin=TK_PC_READ TK_OP_LPAREN id=TK_IDENT TK_OP_RPAREN TK_OP_SEMICOL
          {
             if(!TS.existeix($id.text))
@@ -625,8 +624,8 @@ llegir returns [Vector<Long> trad]
 // Estructrura expressions
 // --- expresions booleanes
 expressio returns [Vector<Long> trad, char tipus]
-    @init{System.out.println("+ 'expressio'");}
-    @after{System.out.println("- 'expressio'");}
+    @init{}
+    @after{}
     : t1=exprRelacionals 
       { 
         $tipus = $t1.tipus; 
@@ -661,8 +660,7 @@ exprRelacionals returns [Vector<Long> trad, char tipus] locals [char tip1, char 
                 $tipus = lib_.BOOL_;
             }else{
                 error=true;
-                System.out.println("Error de relacionals detectat a la linia " + $op.line+"\n"+
-                $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
+                System.out.println("Error de relacionals detectat a la linia " + $op.line+"\n"+ $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
                 System.exit(-1);
             }
             $tip2 = $t2.tipus;
@@ -715,8 +713,7 @@ exprRelacionals returns [Vector<Long> trad, char tipus] locals [char tip1, char 
                 if($t1.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_ || $t2.tipus == lib_.CAR_ || $t1.tipus == lib_.BOOL_)
                 {
                     error=true;
-                    System.out.println("Error de relacionals detectat a la linia " + $op.line+
-                    ".\n NO ES PERMET AQUEST TIPUS PER A AQUESTES OPERACIONS\n"+
+                    System.out.println("Error de relacionals detectat a la linia " + $op.line+ ".\n NO ES PERMET AQUEST TIPUS PER A AQUESTES OPERACIONS\n"+
                     $t1.text+": "+$t1.tipus+"\n"+$t2.text+": "+$t2.tipus);
                     System.exit(-1);
                 }
@@ -794,18 +791,16 @@ exprRelacionals returns [Vector<Long> trad, char tipus] locals [char tip1, char 
         })* 
     ;
 
-// --- expresions suma resta. No funciona per a situacions  I+F(+F)*, si prioritses loperacio posant parentesis si
+// --- expressions suma resta.
 exprArit returns [Vector<Long> trad, char tipus]
     : t1=exprArit2 
       { 
-        System.out.println("T1: "+$t1.text+"   tip: "+$t1.tipus);
-        // agafem les operacions de t1, en el top de lapila contrindra el valor de t1
+        // agafem les operacions de t1, en el top de la pila contindra el valor de t1
         $tipus = $t1.tipus;
         $trad = $t1.trad;
       }
         ( op=(TK_OP_PLUS | TK_OP_MINUS) t2=exprArit2 
           {
-            System.out.println("T2: "+$t2.text+"   tip: "+$t2.tipus);
             // Si no son ni enters ni reals
             if(($t1.tipus != lib_.ENTER_ && $t1.tipus != lib_.REAL_) || ($t2.tipus != lib_.ENTER_ && $t2.tipus != lib_.REAL_)){ 
                 error=true;
@@ -846,7 +841,7 @@ exprArit returns [Vector<Long> trad, char tipus]
         })*
     ;
 
-// --- expresions producte divisio
+// --- expressions producte divisio
 exprArit2 returns [Vector<Long> trad, char tipus]
     : t1=expUnari  
       { 
@@ -939,24 +934,25 @@ expUnari returns [Vector<Long> trad, char tipus]
     };
 
 terme returns [Vector<Long> trad,char tipus] locals [Long adreca]
-@init{$adreca = -1L;
-      $trad = new Vector<Long>(10);}
+    @init
+    {
+        $adreca = -1L;
+        $trad = new Vector<Long>(10);
+    }
     : 
            id=TK_IDENT 
            { 
             if(!TS.existeix($id.text))
             {
                 error = true;
-                System.out.println("Error de terme detectat a la linia " + $id.line+
-                "\nIDENT: "+$id.text+" no existeix."); 
+                System.out.println("Error de terme detectat a la linia " + $id.line+ "\nIDENT: "+$id.text+" no existeix."); 
                 System.exit(-1);
             }
             Registre r = TS.obtenir($id.text);
             if(!r.teValor())
             {
                 error=true;
-                System.out.println("Error de terme detectat a la linia " + $id.line+"\n"+
-                "IDENT: '"+$id.text+"' no te valor.");
+                System.out.println("Error de terme detectat a la linia " + $id.line+"\n"+ "IDENT: '"+$id.text+"' no te valor.");
                 System.exit(-1); 
             }
             $tipus = r.getTipus();
@@ -982,12 +978,12 @@ terme returns [Vector<Long> trad,char tipus] locals [Long adreca]
                 }
                 else if(r.getTipus()==lib_.CAR_)
                 {
-                    $trad.add(bc_.CALOAD);
+                    $trad.add(bc_.ILOAD);
                     $trad.add(r.getAdreca());
                 }
                 else if(r.getTipus()==lib_.BOOL_)
                 {
-                    $trad.add(bc_.BALOAD);
+                    $trad.add(bc_.ILOAD);
                     $trad.add(r.getAdreca());
                 }
             }
@@ -1030,7 +1026,6 @@ terme returns [Vector<Long> trad,char tipus] locals [Long adreca]
          }
       | op=TK_OP_NOT t=expressio
             {
-                System.out.println("NOT");
                 if($t.tipus != lib_.BOOL_){ // Si no és boolea
                     error = true;
                     System.out.println("Error de terme detectat a la linia " + $op.line);
@@ -1054,6 +1049,7 @@ terme returns [Vector<Long> trad,char tipus] locals [Long adreca]
                 $trad.add(1L);
             }
       ;
+
 /////////////////////
 // Regles lèxiques //
 /////////////////////
