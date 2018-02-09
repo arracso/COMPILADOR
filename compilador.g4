@@ -23,10 +23,10 @@
          Long contVar=0L;
          Bytecode bc_ = new Bytecode("_compilat_");
          
-         Long msg_llegir_enter = bc_.addConstant("S","Entra un enter    : ");
-         Long msg_llegir_real = bc_.addConstant("S","Entra un real    : ");
-         Long msg_llegir_car = bc_.addConstant("S","Entra un caracter    : ");
-         Long msg_llegir_bool = bc_.addConstant("S","Entra un boolea    : ");
+         Long msg_llegir_enter = bc_.addConstant("S","Entra un enter : ");
+         Long msg_llegir_real = bc_.addConstant("S","Entra un real : ");
+         Long msg_llegir_car = bc_.addConstant("S","Entra un caracter : ");
+         Long msg_llegir_bool = bc_.addConstant("S","Entra un boolea : ");
          Long barN = bc_.addConstant("C","\n");
          //override method    
          public void notifyErrorListeners(Token offendingToken, String msg, RecognitionException e) {            
