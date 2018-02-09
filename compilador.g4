@@ -585,13 +585,16 @@ llegir returns [Vector<Long> trad]
                 $trad.add(bc_.INVOKESTATIC);
                 $trad.add(bc_.nByte(bc_.mGetChar,2));
                 $trad.add(bc_.nByte(bc_.mGetChar,1));
+                $trad.add(bc_.INVOKESTATIC);
+                $trad.add(bc_.nByte(bc_.mPutChar,2));
+                $trad.add(bc_.nByte(bc_.mPutChar,1));
                 $trad.add(bc_.BIPUSH);
+                System.out.println(r.getAdreca());
                 $trad.add(r.getAdreca());
                 $trad.add(bc_.LDC_W);
                 $trad.add(bc_.nByte(refArray,2));
                 $trad.add(bc_.nByte(refArray,1));
                 $trad.add(bc_.CASTORE);
-                
                 
             }
             else if(r.getTipus()==lib_.BOOL_)
